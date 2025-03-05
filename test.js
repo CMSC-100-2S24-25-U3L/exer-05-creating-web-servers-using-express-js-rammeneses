@@ -12,6 +12,7 @@ import needle from 'needle';
 // );
 
 // Testing by needle POST
+// Method 1
 needle.post(
     'http://localhost:3000/add-book',
     {
@@ -24,3 +25,16 @@ needle.post(
         console.log(res.body) // prints the server’s response “Received a POSTrequest.”
     }
 )
+
+// Links for Testing Methods
+// Method 2:
+//  Working link
+//      http://localhost:3000/find-by-isbn-author?isbn=978-0-7475-3269-9&author=J.K+Rowling
+//  Fail link
+//      http://localhost:3000/find-by-isbn-author?isbn=978-0-7475-3269-9&author=J.K+Rowlingd
+//      http://localhost:3000/find-by-isbn-author?isbn=978-0-7475321321-3269-9&author=J.K+Rowling
+// Method 3:
+//  Working Link
+//      http://localhost:3000/find-by-author?author=J.K+Rowling
+//  Fail link
+//      http://localhost:3000/find-by-author?author=J.FK+Rowlingintheddepp
