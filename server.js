@@ -1,5 +1,6 @@
 import express from 'express';
 import { openSync, closeSync, appendFileSync } from 'node:fs';
+import fs from 'node:fs';
 
 // instantiate the server
 const app = express();
@@ -26,7 +27,7 @@ app.post('/add-book', (req, res) => {
     // console.log(book["book[bookName]"])
     // console.log(Object.keys(book).length)
     // console.log(book.type)
-    
+    // console.log("result: " + addBook(book,true))
     res.send({ success: addBook(book, true)});
 });
 
@@ -83,7 +84,9 @@ function addBook(book, debug = false) {
     }
 
     // Check if the book is in the books.txt file already
-    if (checkISBN(book.isbn) !== -1) {
+    let exists = checkISBN(book.isbn)
+    console.log("test: "+exists)
+    if (exists !== -1) {
         return false
     }
     // MODIFICATION of books.txt
@@ -108,18 +111,28 @@ function addBook(book, debug = false) {
 
 function checkISBN(isbn) {
     let toReturn = -1;
-    let fd;
-
     try {
-        fd = openSync('books.txt', 'r');
-        console.log("in" + fd.toString())
+        let data = fs.readFileSync("books.txt", "utf-8", "r");
+        console.log("data: " + data)
+        console.log("data type: " + data.type)
+        let splitData = data.split(/\n/)
+        console.log(splitData)
+        
+        // Searching each book by splitting the book's details
+        for (let i = 0; i < splitData.length; i++) {
+            let bookISBN = splitData[i].split(',')[1]; // The ISBN is the second element after splitting the commas
+            console.log("from file: " + bookISBN + ":" + isbn)
+            if (bookISBN == isbn) {
+                toReturn = i // index of the book
+                console.log(toReturn)
+                break
+            }
+        }
     } catch (err) {
-        console.log("Error in file");
+        console.log("Error in file: " + err);
     } finally {
-    if (fd !== undefined)
-        closeSync(fd);
+        return toReturn;
     }
-    return toReturn;
 }
 
 function findByISBNAuthor(isbn, author) {
@@ -137,6 +150,8 @@ function findByISBNAuthor(isbn, author) {
     }
     return toReturn;
 }
+
+
 // // 
 // app.get('/', (req, res) => {
 //     res.send('Hello! there test...');
