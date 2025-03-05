@@ -7,12 +7,12 @@ const app = express();
 
 // GET requests
 
-// app.get('/find-by-isbn-author',(req, req) => {
-//     let toSend = findByISBNAuthor()
-//     res.send({
+app.get('/find-by-isbn-author',(req, res) => {
+    // console.log(req.query)
+    let bookDetails = findByISBNAuthor(req.query.isbn, req.query.author)
 
-//     })
-// })
+    res.send(bookDetails)
+})
 
 // POST requests
 app.use(express.json());
@@ -113,18 +113,13 @@ function checkISBN(isbn) {
     let toReturn = -1;
     try {
         let data = fs.readFileSync("books.txt", "utf-8", "r");
-        console.log("data: " + data)
-        console.log("data type: " + data.type)
         let splitData = data.split(/\n/)
-        console.log(splitData)
         
         // Searching each book by splitting the book's details
         for (let i = 0; i < splitData.length; i++) {
             let bookISBN = splitData[i].split(',')[1]; // The ISBN is the second element after splitting the commas
-            console.log("from file: " + bookISBN + ":" + isbn)
             if (bookISBN == isbn) {
                 toReturn = i // index of the book
-                console.log(toReturn)
                 break
             }
         }
@@ -135,20 +130,43 @@ function checkISBN(isbn) {
     }
 }
 
+// findISBNAuthor(String isbn, String author)
+// 
 function findByISBNAuthor(isbn, author) {
-    let toReturn = "Not Found"
+    let toReturn;
+    // get index of book if found 
+    let bookIndex = checkISBN(isbn)
+    // pre-emptive return if a book with the isbn is not found
+    if (bookIndex === -1) {
+        toReturn = "Book with ISBN: \"" + isbn + "\" and author: " + author + " was not found."
+        return toReturn
+    }
+
+    // Checking for the author
     let fd;
 
     try {
-        fd = openSync('books.txt', 'r');
+        let data = fs.readFileSync("books.txt", "utf-8", "r");
+        let splitData = data.split(/\n/)
         
+        // Going to the book's index
+        let book = splitData[bookIndex].split(",") // Splitting the books details for access
+        let bookAuthor = book[2] // The author is the third element
+        if (bookAuthor === author) {
+            toReturn = {
+                bookName: book[0],
+                isbn: book[1],
+                author: book[2],
+                yearPublished: book[3]
+            }
+        } else {
+            toReturn = "Book with ISBN: \"" + isbn + "\" and author: " + author + " was not found."
+        }
     } catch (err) {
-        console.log("Error in file");
+        console.log("Error in file: " + err);
     } finally {
-    if (fd !== undefined)
-        closeSync(fd);
+        return toReturn;
     }
-    return toReturn;
 }
 
 
