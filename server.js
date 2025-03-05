@@ -7,16 +7,22 @@ const app = express();
 
 // GET requests
 
+// Method 2
 app.get('/find-by-isbn-author',(req, res) => {
-    // console.log(req.query)
     let bookDetails = findByISBNAuthor(req.query.isbn, req.query.author)
-
     res.send(bookDetails)
+})
+
+// Method 3
+app.get('/find-by-author',(req, res) => {
+    let booksDetails = findByAuthor(req.query.author)
+    res.send(booksDetails)
 })
 
 // POST requests
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+// Method 1
 app.post('/add-book', (req, res) => {
     // These comments are explained in the first bullet of my Key Takeaways in README.md
     ////// 
@@ -169,18 +175,36 @@ function findByISBNAuthor(isbn, author) {
     }
 }
 
+function findByAuthor(author) {
+    let toReturn = [];
+    let toAppend;
 
-// // 
-// app.get('/', (req, res) => {
-//     res.send('Hello! there test...');
-// });
-// app.get('/greeting', (req, res) => {
-//     res.send('Hello ' + req.query.name);
-// });
-// app.post('/submit-data', (req, res) => {
-//     res.send('Received a POST request from ' + req.body.name);
-// });
-
+    try {
+        let data = fs.readFileSync("books.txt", "utf-8", "r");
+        let splitData = data.split(/\n/)
+        
+        // Looping through the books
+        for (let i = 0; i < splitData.length; i++) {
+            let book = splitData[i].split(",") // Splitting the books details for access
+            let bookAuthor = book[2] // The author is the third element
+            if (bookAuthor === author) {
+                // Enclose the data into an object
+                toAppend = {
+                    bookName: book[0],
+                    isbn: book[1],
+                    author: book[2],
+                    yearPublished: book[3]
+                }
+                // Push to toReturn
+                toReturn.push(toAppend)
+            }
+        }
+    } catch (err) {
+        console.log("Error in file: " + err);
+    } finally {
+        return toReturn;
+    }
+}
 
 // App Listener at port 3000
 app.listen(3000, () => { console.log('Server started at port 3000')} );
