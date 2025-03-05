@@ -6,6 +6,12 @@ const app = express();
 
 // GET requests
 
+// app.get('/find-by-isbn-author',(req, req) => {
+//     let toSend = findByISBNAuthor()
+//     res.send({
+
+//     })
+// })
 
 // POST requests
 app.use(express.json());
@@ -76,6 +82,10 @@ function addBook(book, debug = false) {
         return false;
     }
 
+    // Check if the book is in the books.txt file already
+    if (checkISBN(book.isbn) !== -1) {
+        return false
+    }
     // MODIFICATION of books.txt
     let toSave = [book.bookName, book.isbn, book.author, book.yearPublished].toString();
     // Snippet modified from 
@@ -94,6 +104,38 @@ function addBook(book, debug = false) {
     } // End of snippet
     // 
     return true;
+}
+
+function checkISBN(isbn) {
+    let toReturn = -1;
+    let fd;
+
+    try {
+        fd = openSync('books.txt', 'r');
+        console.log("in" + fd.toString())
+    } catch (err) {
+        console.log("Error in file");
+    } finally {
+    if (fd !== undefined)
+        closeSync(fd);
+    }
+    return toReturn;
+}
+
+function findByISBNAuthor(isbn, author) {
+    let toReturn = "Not Found"
+    let fd;
+
+    try {
+        fd = openSync('books.txt', 'r');
+        
+    } catch (err) {
+        console.log("Error in file");
+    } finally {
+    if (fd !== undefined)
+        closeSync(fd);
+    }
+    return toReturn;
 }
 // // 
 // app.get('/', (req, res) => {
