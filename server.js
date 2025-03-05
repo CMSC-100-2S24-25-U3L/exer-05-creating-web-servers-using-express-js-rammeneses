@@ -91,7 +91,7 @@ function addBook(book, debug = false) {
 
     // Check if the book is in the books.txt file already
     let exists = checkISBN(book.isbn)
-    console.log("test: "+exists)
+    
     if (exists !== -1) {
         return false
     }
